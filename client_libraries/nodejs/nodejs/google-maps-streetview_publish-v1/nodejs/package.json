@@ -1,0 +1,14 @@
+{
+  "url": "https://github.com/googleapis/googleapis",
+  "name": "grpc-google-maps-streetview_publish-v1",
+  "version": "0.7.1",
+  "author": "Google Inc.",
+  "description": "GRPC library for service grpc-google-maps-streetview_publish-v1",
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "files": [
+    "LICENSE",
+    "proto/**/*",
+    "index.js"
+  ]
+}
