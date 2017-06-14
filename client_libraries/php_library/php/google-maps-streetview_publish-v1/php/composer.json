@@ -1,10 +1,10 @@
 {
     "name": "google/grpc-google-maps-streetview_publish-v1",
-    "version": "0.6.0",
+    "version": "0.1.0",
     "type": "library",
     "description": "GRPC library for the google-maps-streetview_publish-v1 service",
     "keywords": ["google", "grpc"],
-    "homepage": "https://github.com/googleapis/googleapis",
+    "homepage": "https://github.com/google/streetview-publish-client-libraries",
     "license": "Apache-2.0",
     "authors": [{
                     "name": "Google Inc",
