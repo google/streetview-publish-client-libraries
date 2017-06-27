@@ -6,7 +6,7 @@ metadata that specifies the position, orientation, and connectivity of each
 photo. With this API, any app can offer an interface for positioning,
 connecting, and uploading user-generated Street View images.
 
-This library provides code to call this API from several languages including C#, Java, go, JavaScript, php, python, and ruby.
+This library provides code to call this API from several languages including Java, JavaScript, and python.
 
 ## Python
 
