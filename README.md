@@ -7,6 +7,8 @@ photo. With this API, any app can offer an interface for positioning,
 connecting, and uploading user-generated Street View images.
 
 This library provides code to call this API from several languages including Java, JavaScript, and python.
+Please see the [documentation](https://developers.google.com/streetview/publish/libraries)
+for code samples and details.
 
 ## Python
 
