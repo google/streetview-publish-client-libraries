@@ -1,8 +1,8 @@
 {
-  "name": "publish/publish",
+  "name": "google/streetview-publish",
   "version": "0.1.0",
   "author": "Google Inc.",
-  "url": "https://github.com/googleapis/googleapis",
+  "url": "https://github.com/google/streetview-publish-client-libraries",
   "description": "Street View Publish API client for PHP",
   "require": {
     "php" : "^5.5 || ^7.0",
