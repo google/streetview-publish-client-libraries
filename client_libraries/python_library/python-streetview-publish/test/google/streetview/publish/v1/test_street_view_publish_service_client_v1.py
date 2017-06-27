@@ -18,8 +18,8 @@ import unittest
 
 from google.gax import errors
 
-from google.cloud.proto.streetview.publish.v1 import resources_pb2
-from google.cloud.proto.streetview.publish.v1 import rpcmessages_pb2
+from google.proto.streetview.publish.v1 import resources_pb2
+from google.proto.streetview.publish.v1 import rpcmessages_pb2
 from google.protobuf import empty_pb2
 from google.protobuf import field_mask_pb2
 from google.streetview.publish.v1 import enums

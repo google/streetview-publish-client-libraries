@@ -15,6 +15,7 @@ PREREQUISITES
 TO PUBLISH
 ----------
 
+- Bump the version within "setuptools.setup()" in setup.py.
 - Make sure you have `an account`_ on pypi_.
 - Publish your package as described in `Packaging and Distributing Projects`_.
 

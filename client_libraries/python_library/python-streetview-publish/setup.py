@@ -25,13 +25,13 @@ import sys
 install_requires = [
     'google-gax>=0.15.7, <0.16dev',
     'oauth2client>=2.0.0, <4.0dev',
-    'proto-google-maps-streetview_publish-v1[grpc]>=0.15.4, <0.16dev',
+    'proto-google-maps-streetview_publish-v1[grpc]>=0.1.3',
     'googleapis-common-protos[grpc]>=1.5.2, <2.0dev',
 ]
 
 setup(
     name='gapic-google-maps-streetview_publish-v1',
-    version='0.15.4',
+    version='0.1.3',
     author='Google Inc',
     author_email='googleapis-packages@google.com',
     classifiers=[

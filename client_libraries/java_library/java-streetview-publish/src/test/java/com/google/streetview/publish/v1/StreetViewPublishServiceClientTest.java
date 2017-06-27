@@ -17,6 +17,7 @@ package com.google.streetview.publish.v1;
 
 import static com.google.streetview.publish.v1.PagedResponseWrappers.ListPhotosPagedResponse;
 
+import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.ApiException;
 import com.google.api.gax.grpc.testing.MockGrpcService;
 import com.google.api.gax.grpc.testing.MockServiceHelper;
@@ -77,6 +78,7 @@ public class StreetViewPublishServiceClientTest {
     StreetViewPublishServiceSettings settings =
         StreetViewPublishServiceSettings.defaultBuilder()
             .setChannelProvider(serviceHelper.createChannelProvider())
+            .setCredentialsProvider(new NoCredentialsProvider())
             .build();
     client = StreetViewPublishServiceClient.create(settings);
   }

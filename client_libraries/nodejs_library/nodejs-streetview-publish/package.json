@@ -1,12 +1,14 @@
 {
-  "repository": "GoogleCloudPlatform/google-cloud-node",
-  "name": "google",
-  "version": "0.7.1",
+  "url": "https://github.com/google/streetview-publish-client-libraries",
+  "name": "streetview-publish-client-libraries-v1",
+  "version": "0.1.3",
   "author": "Google Inc",
   "description": "Street View Publish API client for Node.js",
+  "license": "Apache-2.0",
   "main": "src/index.js",
   "files": [
     "src",
+    "proto",
     "AUTHORS",
     "CONTRIBUTING",
     "COPYING"
@@ -25,7 +27,6 @@
     "Street View Publish API"
   ],
   "dependencies": {
-    "google-proto-files": "^0.12.0",
     "google-gax": "^0.13.2",
     "extend": "^3.0.0"
   },
@@ -37,7 +38,6 @@
     "test": "mocha",
     "publish-module": "node ../../scripts/publish.js streetview_publish"
   },
-  "license": "Apache-2.0",
   "engines": {
     "node": ">=4.0.0"
   }

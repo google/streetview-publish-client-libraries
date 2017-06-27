@@ -1,3 +1,5 @@
+from google.proto.streetview.publish.v1 import streetview_publish_pb2
+
 # Copyright 2017, Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +35,8 @@ from google.gax import config
 from google.gax import path_template
 import google.gax
 
-from google.cloud.proto.streetview.publish.v1 import resources_pb2
-from google.cloud.proto.streetview.publish.v1 import rpcmessages_pb2
+from google.proto.streetview.publish.v1 import resources_pb2
+from google.proto.streetview.publish.v1 import rpcmessages_pb2
 from google.protobuf import empty_pb2
 from google.protobuf import field_mask_pb2
 from google.streetview.publish.v1 import enums
@@ -202,7 +204,7 @@ class StreetViewPublishServiceClient(object):
             settings for this call, e.g, timeout, retries etc.
 
         Returns:
-          A :class:`google.cloud.proto.streetview.publish.v1.resources_pb2.UploadRef` instance.
+          A :class:`google.proto.streetview.publish.v1.resources_pb2.UploadRef` instance.
 
         Raises:
           :exc:`google.gax.errors.GaxError` if the RPC is aborted.
@@ -223,18 +225,18 @@ class StreetViewPublishServiceClient(object):
 
         Example:
           >>> from google.streetview.publish.v1 import street_view_publish_service_client
-          >>> from google.cloud.proto.streetview.publish.v1 import resources_pb2
+          >>> from google.proto.streetview.publish.v1 import resources_pb2
           >>> client = street_view_publish_service_client.StreetViewPublishServiceClient()
           >>> photo = resources_pb2.Photo()
           >>> response = client.create_photo(photo)
 
         Args:
-          photo (:class:`google.cloud.proto.streetview.publish.v1.resources_pb2.Photo`): Required. Photo to create.
+          photo (:class:`google.proto.streetview.publish.v1.resources_pb2.Photo`): Required. Photo to create.
           options (:class:`google.gax.CallOptions`): Overrides the default
             settings for this call, e.g, timeout, retries etc.
 
         Returns:
-          A :class:`google.cloud.proto.streetview.publish.v1.resources_pb2.Photo` instance.
+          A :class:`google.proto.streetview.publish.v1.resources_pb2.Photo` instance.
 
         Raises:
           :exc:`google.gax.errors.GaxError` if the RPC is aborted.
@@ -270,7 +272,7 @@ class StreetViewPublishServiceClient(object):
             settings for this call, e.g, timeout, retries etc.
 
         Returns:
-          A :class:`google.cloud.proto.streetview.publish.v1.resources_pb2.Photo` instance.
+          A :class:`google.proto.streetview.publish.v1.resources_pb2.Photo` instance.
 
         Raises:
           :exc:`google.gax.errors.GaxError` if the RPC is aborted.
@@ -307,7 +309,7 @@ class StreetViewPublishServiceClient(object):
             settings for this call, e.g, timeout, retries etc.
 
         Returns:
-          A :class:`google.cloud.proto.streetview.publish.v1.rpcmessages_pb2.BatchGetPhotosResponse` instance.
+          A :class:`google.proto.streetview.publish.v1.rpcmessages_pb2.BatchGetPhotosResponse` instance.
 
         Raises:
           :exc:`google.gax.errors.GaxError` if the RPC is aborted.
@@ -356,7 +358,7 @@ class StreetViewPublishServiceClient(object):
 
         Returns:
           A :class:`google.gax.PageIterator` instance. By default, this
-          is an iterable of :class:`google.cloud.proto.streetview.publish.v1.resources_pb2.Photo` instances.
+          is an iterable of :class:`google.proto.streetview.publish.v1.resources_pb2.Photo` instances.
           This object can also be configured to iterate over the pages
           of the response through the `CallOptions` parameter.
 
@@ -383,7 +385,7 @@ class StreetViewPublishServiceClient(object):
 
         Example:
           >>> from google.streetview.publish.v1 import street_view_publish_service_client
-          >>> from google.cloud.proto.streetview.publish.v1 import resources_pb2
+          >>> from google.proto.streetview.publish.v1 import resources_pb2
           >>> from google.protobuf import field_mask_pb2
           >>> client = street_view_publish_service_client.StreetViewPublishServiceClient()
           >>> photo = resources_pb2.Photo()
@@ -391,7 +393,7 @@ class StreetViewPublishServiceClient(object):
           >>> response = client.update_photo(photo, update_mask)
 
         Args:
-          photo (:class:`google.cloud.proto.streetview.publish.v1.resources_pb2.Photo`): Required. Photo object containing the new metadata. Only the fields
+          photo (:class:`google.proto.streetview.publish.v1.resources_pb2.Photo`): Required. Photo object containing the new metadata. Only the fields
             specified in ``update_mask`` are used. If ``update_mask`` is not present, the
             update applies to all fields.
             **Note:** To update ``pose.altitude``, ``pose.latlngpair`` has to be filled as
@@ -420,7 +422,7 @@ class StreetViewPublishServiceClient(object):
             settings for this call, e.g, timeout, retries etc.
 
         Returns:
-          A :class:`google.cloud.proto.streetview.publish.v1.resources_pb2.Photo` instance.
+          A :class:`google.proto.streetview.publish.v1.resources_pb2.Photo` instance.
 
         Raises:
           :exc:`google.gax.errors.GaxError` if the RPC is aborted.
@@ -450,12 +452,12 @@ class StreetViewPublishServiceClient(object):
           >>> response = client.batch_update_photos(update_photo_requests)
 
         Args:
-          update_photo_requests (list[:class:`google.cloud.proto.streetview.publish.v1.rpcmessages_pb2.UpdatePhotoRequest`]): Required. List of update photo requests.
+          update_photo_requests (list[:class:`google.proto.streetview.publish.v1.rpcmessages_pb2.UpdatePhotoRequest`]): Required. List of update photo requests.
           options (:class:`google.gax.CallOptions`): Overrides the default
             settings for this call, e.g, timeout, retries etc.
 
         Returns:
-          A :class:`google.cloud.proto.streetview.publish.v1.rpcmessages_pb2.BatchUpdatePhotosResponse` instance.
+          A :class:`google.proto.streetview.publish.v1.rpcmessages_pb2.BatchUpdatePhotosResponse` instance.
 
         Raises:
           :exc:`google.gax.errors.GaxError` if the RPC is aborted.
@@ -518,7 +520,7 @@ class StreetViewPublishServiceClient(object):
             settings for this call, e.g, timeout, retries etc.
 
         Returns:
-          A :class:`google.cloud.proto.streetview.publish.v1.rpcmessages_pb2.BatchDeletePhotosResponse` instance.
+          A :class:`google.proto.streetview.publish.v1.rpcmessages_pb2.BatchDeletePhotosResponse` instance.
 
         Raises:
           :exc:`google.gax.errors.GaxError` if the RPC is aborted.

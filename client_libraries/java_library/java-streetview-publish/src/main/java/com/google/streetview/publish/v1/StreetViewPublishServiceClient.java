@@ -18,8 +18,10 @@ package com.google.streetview.publish.v1;
 import static com.google.streetview.publish.v1.PagedResponseWrappers.ListPhotosPagedResponse;
 
 import com.google.api.core.BetaApi;
+import com.google.api.gax.grpc.ChannelAndExecutor;
 import com.google.api.gax.grpc.ClientContext;
 import com.google.api.gax.grpc.UnaryCallable;
+import com.google.auth.Credentials;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishResources.Photo;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishResources.UploadRef;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.BatchDeletePhotosRequest;
@@ -37,9 +39,12 @@ import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.Pho
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.UpdatePhotoRequest;
 import com.google.protobuf.Empty;
 import com.google.protobuf.FieldMask;
+import io.grpc.ManagedChannel;
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import javax.annotation.Generated;
 
 // AUTO-GENERATED DOCUMENTATION AND SERVICE
@@ -100,6 +105,8 @@ import javax.annotation.Generated;
 @BetaApi
 public class StreetViewPublishServiceClient implements AutoCloseable {
   private final StreetViewPublishServiceSettings settings;
+  private final ScheduledExecutorService executor;
+  private final ManagedChannel channel;
   private final List<AutoCloseable> closeables = new ArrayList<>();
 
   private final UnaryCallable<Empty, UploadRef> startUploadCallable;
@@ -138,8 +145,17 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
   protected StreetViewPublishServiceClient(StreetViewPublishServiceSettings settings)
       throws IOException {
     this.settings = settings;
+    ChannelAndExecutor channelAndExecutor = settings.getChannelAndExecutor();
+    this.executor = channelAndExecutor.getExecutor();
+    this.channel = channelAndExecutor.getChannel();
+    Credentials credentials = settings.getCredentialsProvider().getCredentials();
 
-    ClientContext clientContext = ClientContext.create(settings);
+    ClientContext clientContext =
+        ClientContext.newBuilder()
+            .setExecutor(this.executor)
+            .setChannel(this.channel)
+            .setCredentials(credentials)
+            .build();
 
     this.startUploadCallable = UnaryCallable.create(settings.startUploadSettings(), clientContext);
     this.createPhotoCallable = UnaryCallable.create(settings.createPhotoSettings(), clientContext);
@@ -156,7 +172,24 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
     this.batchDeletePhotosCallable =
         UnaryCallable.create(settings.batchDeletePhotosSettings(), clientContext);
 
-    closeables.addAll(clientContext.getCloseables());
+    if (settings.getChannelProvider().shouldAutoClose()) {
+      closeables.add(
+          new Closeable() {
+            @Override
+            public void close() throws IOException {
+              channel.shutdown();
+            }
+          });
+    }
+    if (settings.getExecutorProvider().shouldAutoClose()) {
+      closeables.add(
+          new Closeable() {
+            @Override
+            public void close() throws IOException {
+              executor.shutdown();
+            }
+          });
+    }
   }
 
   public final StreetViewPublishServiceSettings getSettings() {
@@ -405,7 +438,8 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * }
    * </code></pre>
    *
-   * @param photoIds Required. IDs of the photos.
+   * @param photoIds Required. IDs of the photos. For HTTP GET requests, the URL query parameter
+   *     should be `photoIds=&lt;id1&gt;&amp;photoIds=&lt;id2&gt;&amp;...`.
    * @param view Specifies if a download URL for the photo bytes should be returned in the Photo
    *     response.
    * @throws com.google.api.gax.grpc.ApiException if the remote call fails
@@ -622,8 +656,8 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    *     request. The update fails if invalid fields are specified. Multiple fields can be specified
    *     in a comma-delimited list.
    *     <p>The following fields are valid:
-   *     <p>&#42; `pose.heading` &#42; `pose.latlngpair` &#42; `pose.level` &#42; `pose.altitude`
-   *     &#42; `connections` &#42; `places`
+   *     <p>&#42; `pose.heading` &#42; `pose.latlngpair` &#42; `pose.pitch` &#42; `pose.roll` &#42;
+   *     `pose.level` &#42; `pose.altitude` &#42; `connections` &#42; `places`
    *     <p>&#42;&#42;Note:&#42;&#42; Repeated fields in `update_mask` mean the entire set of
    *     repeated values will be replaced with the new contents. For example, if
    *     `UpdatePhotoRequest.photo.update_mask` contains `connections` and
@@ -894,7 +928,8 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * }
    * </code></pre>
    *
-   * @param photoIds Required. List of delete photo requests.
+   * @param photoIds Required. List of delete photo requests. For HTTP GET requests, the URL query
+   *     parameter should be `photoIds=&lt;id1&gt;&amp;photoIds=&lt;id2&gt;&amp;...`.
    * @throws com.google.api.gax.grpc.ApiException if the remote call fails
    */
   public final BatchDeletePhotosResponse batchDeletePhotos(List<String> photoIds) {

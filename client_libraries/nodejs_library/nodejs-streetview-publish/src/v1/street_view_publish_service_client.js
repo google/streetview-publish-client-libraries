@@ -727,7 +727,10 @@ function StreetViewPublishServiceClientBuilder(gaxGrpc) {
     return new StreetViewPublishServiceClientBuilder(gaxGrpc);
   }
 
-  var streetViewPublishServiceClient = require('grpc-google-streetview-publish-v1').client;
+  var streetViewPublishServiceClient = gaxGrpc.load([{
+    root: require('path').join(__dirname, '..', '..', 'proto'),
+    file: 'google/streetview/publish/v1/streetview_publish.proto'
+  }]);
   extend(this, streetViewPublishServiceClient.google.streetview.publish.v1);
 
 

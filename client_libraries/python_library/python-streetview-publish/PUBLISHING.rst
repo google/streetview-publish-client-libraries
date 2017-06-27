@@ -16,6 +16,9 @@ PREREQUISITES
 TO PUBLISH
 ----------
 
+- Bump the version within "setuptools.setup()" in setup.py.
+- Bump the version in 'proto-google-maps-streetview_publish-v1[grpc]>=...'
+  if applicable. That is also in setup.py.
 - Make sure you have `an account`_ on pypi_.
 - Publish your package using tox.
 - *tox must be used here or the uploaded package will be invalid!!*

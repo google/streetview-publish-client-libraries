@@ -37,7 +37,7 @@ extras_require = {
 
 setuptools.setup(
   name='proto-google-maps-streetview_publish-v1',
-  version='0.15.4',
+  version='0.1.3',
   author='Google Inc',
   author_email='googleapis-packages@google.com',
   classifiers=[
@@ -59,6 +59,6 @@ setuptools.setup(
   extras_require=extras_require,
   license='Apache-2.0',
   packages=find_packages(),
-  namespace_packages=['google.cloud.proto.streetview.publish', 'google.cloud.proto.streetview', 'google.cloud.proto', 'google.cloud', 'google'],
+  namespace_packages=['google.proto.streetview.publish', 'google.proto.streetview', 'google.proto', 'google'],
   url='https://github.com/googleapis/googleapis'
 )
