@@ -26,7 +26,7 @@ use Google\Streetview\Publish\V1\StreetViewPublishServiceClient;
 use Google\GAX\ApiException;
 use Google\GAX\GrpcCredentialsHelper;
 use Grpc;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use google\protobuf\Any;
 use google\protobuf\EmptyC;
 use google\protobuf\FieldMask;
@@ -43,7 +43,7 @@ use stdClass;
  * @group publish
  * @group grpc
  */
-class StreetViewPublishServiceClientTest extends PHPUnit_Framework_TestCase
+class StreetViewPublishServiceClientTest extends TestCase
 {
     public function createMockStreetViewPublishServiceImpl($hostname, $opts)
     {
