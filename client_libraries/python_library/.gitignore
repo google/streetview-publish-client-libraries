@@ -1,0 +1,6 @@
+# Build artifacts
+*.py[cod]
+gapic_google_maps_streetview_publish_v1.egg-info/
+.eggs/
+build/
+dist/
