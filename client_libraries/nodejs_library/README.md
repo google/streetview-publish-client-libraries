@@ -20,7 +20,11 @@ steps:
 
 ### Installation
 ```
+<<<<<<< HEAD
 $ npm install streetview-publish-client-libraries-v1
+=======
+$ npm install --save google
+>>>>>>> d94437ee5a76696907803b14683d2ca3f72d3745
 ```
 
 ### Preview
@@ -48,8 +52,16 @@ $ npm install streetview-publish-client-libraries-v1
   to see other available methods on the client.
 - Read the [Street View Publish API Product documentation][Product Documentation]
   to learn more about the product and see How-to Guides.
+<<<<<<< HEAD
 - View this [repository's main README](https://github.com/google/streetview-publish-client-libraries/blob/master/README.md)
   to see the full list of Cloud APIs that we cover.
 
 [Client Library Documentation]: https://developers.google.com/streetview/publish/reference/rest/
 [Product Documentation]: http://developers.google.com/streetview/publish
+=======
+- View this [repository's main README](https://github.com/GoogleCloudPlatform/google-cloud-node/blob/master/README.md)
+  to see the full list of Cloud APIs that we cover.
+
+[Client Library Documentation]: https://googlecloudplatform.github.io/google-cloud-node/#/docs/streetview_publish
+[Product Documentation]: https://cloud.google.com/streetview_publish
+>>>>>>> d94437ee5a76696907803b14683d2ca3f72d3745
