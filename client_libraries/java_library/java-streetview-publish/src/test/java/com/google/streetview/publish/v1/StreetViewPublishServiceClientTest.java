@@ -1,11 +1,11 @@
 /*
- * Copyright 2017, Google Inc. All rights reserved.
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,12 +15,15 @@
  */
 package com.google.streetview.publish.v1;
 
-import static com.google.streetview.publish.v1.PagedResponseWrappers.ListPhotosPagedResponse;
+import static com.google.streetview.publish.v1.StreetViewPublishServiceClient.ListPhotosPagedResponse;
 
 import com.google.api.gax.core.NoCredentialsProvider;
-import com.google.api.gax.grpc.ApiException;
+import com.google.api.gax.grpc.GaxGrpcProperties;
+import com.google.api.gax.grpc.testing.LocalChannelProvider;
 import com.google.api.gax.grpc.testing.MockGrpcService;
 import com.google.api.gax.grpc.testing.MockServiceHelper;
+import com.google.api.gax.rpc.ApiClientHeaderProvider;
+import com.google.api.gax.rpc.InvalidArgumentException;
 import com.google.common.collect.Lists;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishResources.Photo;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.BatchDeletePhotosRequest;
@@ -57,6 +60,7 @@ public class StreetViewPublishServiceClientTest {
   private static MockStreetViewPublishService mockStreetViewPublishService;
   private static MockServiceHelper serviceHelper;
   private StreetViewPublishServiceClient client;
+  private LocalChannelProvider channelProvider;
 
   @BeforeClass
   public static void startStaticServer() {
@@ -75,10 +79,11 @@ public class StreetViewPublishServiceClientTest {
   @Before
   public void setUp() throws IOException {
     serviceHelper.reset();
+    channelProvider = serviceHelper.createChannelProvider();
     StreetViewPublishServiceSettings settings =
-        StreetViewPublishServiceSettings.defaultBuilder()
-            .setChannelProvider(serviceHelper.createChannelProvider())
-            .setCredentialsProvider(new NoCredentialsProvider())
+        StreetViewPublishServiceSettings.newBuilder()
+            .setTransportChannelProvider(channelProvider)
+            .setCredentialsProvider(NoCredentialsProvider.create())
             .build();
     client = StreetViewPublishServiceClient.create(settings);
   }
@@ -94,7 +99,7 @@ public class StreetViewPublishServiceClientTest {
     String downloadUrl = "downloadUrl1109408056";
     String thumbnailUrl = "thumbnailUrl1825632156";
     String shareLink = "shareLink-1788203942";
-    long viewCount = -1534353675L;
+    long viewCount = 1534353675L;
     Photo expectedResponse =
         Photo.newBuilder()
             .setDownloadUrl(downloadUrl)
@@ -114,6 +119,10 @@ public class StreetViewPublishServiceClientTest {
     CreatePhotoRequest actualRequest = (CreatePhotoRequest) actualRequests.get(0);
 
     Assert.assertEquals(photo, actualRequest.getPhoto());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
   }
 
   @Test
@@ -127,8 +136,8 @@ public class StreetViewPublishServiceClientTest {
 
       client.createPhoto(photo);
       Assert.fail("No exception raised");
-    } catch (ApiException e) {
-      Assert.assertEquals(Status.INVALID_ARGUMENT.getCode(), e.getStatusCode());
+    } catch (InvalidArgumentException e) {
+      // Expected exception
     }
   }
 
@@ -138,7 +147,7 @@ public class StreetViewPublishServiceClientTest {
     String downloadUrl = "downloadUrl1109408056";
     String thumbnailUrl = "thumbnailUrl1825632156";
     String shareLink = "shareLink-1788203942";
-    long viewCount = -1534353675L;
+    long viewCount = 1534353675L;
     Photo expectedResponse =
         Photo.newBuilder()
             .setDownloadUrl(downloadUrl)
@@ -160,6 +169,10 @@ public class StreetViewPublishServiceClientTest {
 
     Assert.assertEquals(photoId, actualRequest.getPhotoId());
     Assert.assertEquals(view, actualRequest.getView());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
   }
 
   @Test
@@ -174,8 +187,8 @@ public class StreetViewPublishServiceClientTest {
 
       client.getPhoto(photoId, view);
       Assert.fail("No exception raised");
-    } catch (ApiException e) {
-      Assert.assertEquals(Status.INVALID_ARGUMENT.getCode(), e.getStatusCode());
+    } catch (InvalidArgumentException e) {
+      // Expected exception
     }
   }
 
@@ -197,6 +210,10 @@ public class StreetViewPublishServiceClientTest {
 
     Assert.assertEquals(photoIds, actualRequest.getPhotoIdsList());
     Assert.assertEquals(view, actualRequest.getView());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
   }
 
   @Test
@@ -211,8 +228,8 @@ public class StreetViewPublishServiceClientTest {
 
       client.batchGetPhotos(photoIds, view);
       Assert.fail("No exception raised");
-    } catch (ApiException e) {
-      Assert.assertEquals(Status.INVALID_ARGUMENT.getCode(), e.getStatusCode());
+    } catch (InvalidArgumentException e) {
+      // Expected exception
     }
   }
 
@@ -244,6 +261,10 @@ public class StreetViewPublishServiceClientTest {
 
     Assert.assertEquals(view, actualRequest.getView());
     Assert.assertEquals(filter, actualRequest.getFilter());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
   }
 
   @Test
@@ -258,8 +279,8 @@ public class StreetViewPublishServiceClientTest {
 
       client.listPhotos(view, filter);
       Assert.fail("No exception raised");
-    } catch (ApiException e) {
-      Assert.assertEquals(Status.INVALID_ARGUMENT.getCode(), e.getStatusCode());
+    } catch (InvalidArgumentException e) {
+      // Expected exception
     }
   }
 
@@ -269,7 +290,7 @@ public class StreetViewPublishServiceClientTest {
     String downloadUrl = "downloadUrl1109408056";
     String thumbnailUrl = "thumbnailUrl1825632156";
     String shareLink = "shareLink-1788203942";
-    long viewCount = -1534353675L;
+    long viewCount = 1534353675L;
     Photo expectedResponse =
         Photo.newBuilder()
             .setDownloadUrl(downloadUrl)
@@ -291,6 +312,10 @@ public class StreetViewPublishServiceClientTest {
 
     Assert.assertEquals(photo, actualRequest.getPhoto());
     Assert.assertEquals(updateMask, actualRequest.getUpdateMask());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
   }
 
   @Test
@@ -305,8 +330,8 @@ public class StreetViewPublishServiceClientTest {
 
       client.updatePhoto(photo, updateMask);
       Assert.fail("No exception raised");
-    } catch (ApiException e) {
-      Assert.assertEquals(Status.INVALID_ARGUMENT.getCode(), e.getStatusCode());
+    } catch (InvalidArgumentException e) {
+      // Expected exception
     }
   }
 
@@ -326,6 +351,10 @@ public class StreetViewPublishServiceClientTest {
     BatchUpdatePhotosRequest actualRequest = (BatchUpdatePhotosRequest) actualRequests.get(0);
 
     Assert.assertEquals(updatePhotoRequests, actualRequest.getUpdatePhotoRequestsList());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
   }
 
   @Test
@@ -339,8 +368,8 @@ public class StreetViewPublishServiceClientTest {
 
       client.batchUpdatePhotos(updatePhotoRequests);
       Assert.fail("No exception raised");
-    } catch (ApiException e) {
-      Assert.assertEquals(Status.INVALID_ARGUMENT.getCode(), e.getStatusCode());
+    } catch (InvalidArgumentException e) {
+      // Expected exception
     }
   }
 
@@ -359,6 +388,10 @@ public class StreetViewPublishServiceClientTest {
     DeletePhotoRequest actualRequest = (DeletePhotoRequest) actualRequests.get(0);
 
     Assert.assertEquals(photoId, actualRequest.getPhotoId());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
   }
 
   @Test
@@ -372,8 +405,8 @@ public class StreetViewPublishServiceClientTest {
 
       client.deletePhoto(photoId);
       Assert.fail("No exception raised");
-    } catch (ApiException e) {
-      Assert.assertEquals(Status.INVALID_ARGUMENT.getCode(), e.getStatusCode());
+    } catch (InvalidArgumentException e) {
+      // Expected exception
     }
   }
 
@@ -393,6 +426,10 @@ public class StreetViewPublishServiceClientTest {
     BatchDeletePhotosRequest actualRequest = (BatchDeletePhotosRequest) actualRequests.get(0);
 
     Assert.assertEquals(photoIds, actualRequest.getPhotoIdsList());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
   }
 
   @Test
@@ -406,8 +443,8 @@ public class StreetViewPublishServiceClientTest {
 
       client.batchDeletePhotos(photoIds);
       Assert.fail("No exception raised");
-    } catch (ApiException e) {
-      Assert.assertEquals(Status.INVALID_ARGUMENT.getCode(), e.getStatusCode());
+    } catch (InvalidArgumentException e) {
+      // Expected exception
     }
   }
 }
