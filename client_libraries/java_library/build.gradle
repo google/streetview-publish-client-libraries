@@ -1,0 +1,43 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    maven {
+      url 'https://plugins.gradle.org/m2/'
+    }
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.8'
+  }
+}
+
+subprojects {
+  apply plugin: 'java'
+  apply plugin: 'maven'
+  apply plugin: 'com.github.sherter.google-java-format'
+
+  sourceCompatibility = 1.7
+  targetCompatibility = 1.7
+
+  test {
+    testLogging {
+      events "passed", "skipped", "failed", "standardOut", "standardError"
+      exceptionFormat = 'full'
+    }
+  }
+
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+
+  tasks.googleJavaFormat {
+      exclude 'bin/**'
+      exclude 'build/**'
+  }
+  tasks.verifyGoogleJavaFormat {
+      exclude 'bin/**'
+      exclude 'build/**'
+  }
+  test.dependsOn verifyGoogleJavaFormat
+}

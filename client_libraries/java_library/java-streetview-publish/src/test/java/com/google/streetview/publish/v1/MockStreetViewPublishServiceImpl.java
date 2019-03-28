@@ -1,11 +1,11 @@
 /*
- * Copyright 2017, Google Inc. All rights reserved.
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  */
 package com.google.streetview.publish.v1;
 
-import com.google.geo.ugc.streetview.publish.v1.StreetViewPublish.StreetViewPublishServiceGrpc.StreetViewPublishServiceImplBase;
+import com.google.api.core.BetaApi;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishResources.Photo;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishResources.UploadRef;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.BatchDeletePhotosRequest;
@@ -30,6 +30,7 @@ import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.Get
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.ListPhotosRequest;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.ListPhotosResponse;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.UpdatePhotoRequest;
+import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishServiceGrpc.StreetViewPublishServiceImplBase;
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.stub.StreamObserver;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Queue;
 
 @javax.annotation.Generated("by GAPIC")
+@BetaApi
 public class MockStreetViewPublishServiceImpl extends StreetViewPublishServiceImplBase {
   private ArrayList<GeneratedMessageV3> requests;
   private Queue<Object> responses;
