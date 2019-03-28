@@ -1,11 +1,11 @@
 /*
- * Copyright 2017, Google Inc. All rights reserved.
+ * Copyright 2019 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,13 +15,16 @@
  */
 package com.google.streetview.publish.v1;
 
-import static com.google.streetview.publish.v1.PagedResponseWrappers.ListPhotosPagedResponse;
-
+import com.google.api.core.ApiFunction;
+import com.google.api.core.ApiFuture;
+import com.google.api.core.ApiFutures;
 import com.google.api.core.BetaApi;
-import com.google.api.gax.grpc.ChannelAndExecutor;
-import com.google.api.gax.grpc.ClientContext;
-import com.google.api.gax.grpc.UnaryCallable;
-import com.google.auth.Credentials;
+import com.google.api.gax.core.BackgroundResource;
+import com.google.api.gax.paging.AbstractFixedSizeCollection;
+import com.google.api.gax.paging.AbstractPage;
+import com.google.api.gax.paging.AbstractPagedListResponse;
+import com.google.api.gax.rpc.PageContext;
+import com.google.api.gax.rpc.UnaryCallable;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishResources.Photo;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishResources.UploadRef;
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.BatchDeletePhotosRequest;
@@ -39,12 +42,11 @@ import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.Pho
 import com.google.geo.ugc.streetview.publish.v1.StreetViewPublishRpcMessages.UpdatePhotoRequest;
 import com.google.protobuf.Empty;
 import com.google.protobuf.FieldMask;
-import io.grpc.ManagedChannel;
-import java.io.Closeable;
+import com.google.streetview.publish.v1.stub.StreetViewPublishServiceStub;
+import com.google.streetview.publish.v1.stub.StreetViewPublishServiceStubSettings;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Generated;
 
 // AUTO-GENERATED DOCUMENTATION AND SERVICE
@@ -71,13 +73,13 @@ import javax.annotation.Generated;
  * methods:
  *
  * <ol>
- *   <li> A "flattened" method. With this type of method, the fields of the request type have been
+ *   <li>A "flattened" method. With this type of method, the fields of the request type have been
  *       converted into function parameters. It may be the case that not all fields are available as
  *       parameters, and not every API method will have a flattened method entry point.
- *   <li> A "request object" method. This type of method only takes one parameter, a request object,
+ *   <li>A "request object" method. This type of method only takes one parameter, a request object,
  *       which must be constructed before the call. Not every API method will have a request object
  *       method.
- *   <li> A "callable" method. This type of method takes no parameters and returns an immutable API
+ *   <li>A "callable" method. This type of method takes no parameters and returns an immutable API
  *       callable object, which can be used to initiate calls to the service.
  * </ol>
  *
@@ -90,41 +92,39 @@ import javax.annotation.Generated;
  * <p>This class can be customized by passing in a custom instance of
  * StreetViewPublishServiceSettings to create(). For example:
  *
+ * <p>To customize credentials:
+ *
  * <pre>
  * <code>
  * StreetViewPublishServiceSettings streetViewPublishServiceSettings =
- *     StreetViewPublishServiceSettings.defaultBuilder()
+ *     StreetViewPublishServiceSettings.newBuilder()
  *         .setCredentialsProvider(FixedCredentialsProvider.create(myCredentials))
  *         .build();
  * StreetViewPublishServiceClient streetViewPublishServiceClient =
  *     StreetViewPublishServiceClient.create(streetViewPublishServiceSettings);
  * </code>
  * </pre>
+ *
+ * To customize the endpoint:
+ *
+ * <pre>
+ * <code>
+ * StreetViewPublishServiceSettings streetViewPublishServiceSettings =
+ *     StreetViewPublishServiceSettings.newBuilder().setEndpoint(myEndpoint).build();
+ * StreetViewPublishServiceClient streetViewPublishServiceClient =
+ *     StreetViewPublishServiceClient.create(streetViewPublishServiceSettings);
+ * </code>
+ * </pre>
  */
-@Generated("by GAPIC")
+@Generated("by gapic-generator")
 @BetaApi
-public class StreetViewPublishServiceClient implements AutoCloseable {
+public class StreetViewPublishServiceClient implements BackgroundResource {
   private final StreetViewPublishServiceSettings settings;
-  private final ScheduledExecutorService executor;
-  private final ManagedChannel channel;
-  private final List<AutoCloseable> closeables = new ArrayList<>();
-
-  private final UnaryCallable<Empty, UploadRef> startUploadCallable;
-  private final UnaryCallable<CreatePhotoRequest, Photo> createPhotoCallable;
-  private final UnaryCallable<GetPhotoRequest, Photo> getPhotoCallable;
-  private final UnaryCallable<BatchGetPhotosRequest, BatchGetPhotosResponse> batchGetPhotosCallable;
-  private final UnaryCallable<ListPhotosRequest, ListPhotosResponse> listPhotosCallable;
-  private final UnaryCallable<ListPhotosRequest, ListPhotosPagedResponse> listPhotosPagedCallable;
-  private final UnaryCallable<UpdatePhotoRequest, Photo> updatePhotoCallable;
-  private final UnaryCallable<BatchUpdatePhotosRequest, BatchUpdatePhotosResponse>
-      batchUpdatePhotosCallable;
-  private final UnaryCallable<DeletePhotoRequest, Empty> deletePhotoCallable;
-  private final UnaryCallable<BatchDeletePhotosRequest, BatchDeletePhotosResponse>
-      batchDeletePhotosCallable;
+  private final StreetViewPublishServiceStub stub;
 
   /** Constructs an instance of StreetViewPublishServiceClient with default settings. */
   public static final StreetViewPublishServiceClient create() throws IOException {
-    return create(StreetViewPublishServiceSettings.defaultBuilder().build());
+    return create(StreetViewPublishServiceSettings.newBuilder().build());
   }
 
   /**
@@ -138,71 +138,60 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
   }
 
   /**
+   * Constructs an instance of StreetViewPublishServiceClient, using the given stub for making
+   * calls. This is for advanced usage - prefer to use StreetViewPublishServiceSettings}.
+   */
+  @BetaApi("A restructuring of stub classes is planned, so this may break in the future")
+  public static final StreetViewPublishServiceClient create(StreetViewPublishServiceStub stub) {
+    return new StreetViewPublishServiceClient(stub);
+  }
+
+  /**
    * Constructs an instance of StreetViewPublishServiceClient, using the given settings. This is
-   * protected so that it easy to make a subclass, but otherwise, the static factory methods should
-   * be preferred.
+   * protected so that it is easy to make a subclass, but otherwise, the static factory methods
+   * should be preferred.
    */
   protected StreetViewPublishServiceClient(StreetViewPublishServiceSettings settings)
       throws IOException {
     this.settings = settings;
-    ChannelAndExecutor channelAndExecutor = settings.getChannelAndExecutor();
-    this.executor = channelAndExecutor.getExecutor();
-    this.channel = channelAndExecutor.getChannel();
-    Credentials credentials = settings.getCredentialsProvider().getCredentials();
+    this.stub = ((StreetViewPublishServiceStubSettings) settings.getStubSettings()).createStub();
+  }
 
-    ClientContext clientContext =
-        ClientContext.newBuilder()
-            .setExecutor(this.executor)
-            .setChannel(this.channel)
-            .setCredentials(credentials)
-            .build();
-
-    this.startUploadCallable = UnaryCallable.create(settings.startUploadSettings(), clientContext);
-    this.createPhotoCallable = UnaryCallable.create(settings.createPhotoSettings(), clientContext);
-    this.getPhotoCallable = UnaryCallable.create(settings.getPhotoSettings(), clientContext);
-    this.batchGetPhotosCallable =
-        UnaryCallable.create(settings.batchGetPhotosSettings(), clientContext);
-    this.listPhotosCallable = UnaryCallable.create(settings.listPhotosSettings(), clientContext);
-    this.listPhotosPagedCallable =
-        UnaryCallable.createPagedVariant(settings.listPhotosSettings(), clientContext);
-    this.updatePhotoCallable = UnaryCallable.create(settings.updatePhotoSettings(), clientContext);
-    this.batchUpdatePhotosCallable =
-        UnaryCallable.create(settings.batchUpdatePhotosSettings(), clientContext);
-    this.deletePhotoCallable = UnaryCallable.create(settings.deletePhotoSettings(), clientContext);
-    this.batchDeletePhotosCallable =
-        UnaryCallable.create(settings.batchDeletePhotosSettings(), clientContext);
-
-    if (settings.getChannelProvider().shouldAutoClose()) {
-      closeables.add(
-          new Closeable() {
-            @Override
-            public void close() throws IOException {
-              channel.shutdown();
-            }
-          });
-    }
-    if (settings.getExecutorProvider().shouldAutoClose()) {
-      closeables.add(
-          new Closeable() {
-            @Override
-            public void close() throws IOException {
-              executor.shutdown();
-            }
-          });
-    }
+  @BetaApi("A restructuring of stub classes is planned, so this may break in the future")
+  protected StreetViewPublishServiceClient(StreetViewPublishServiceStub stub) {
+    this.settings = null;
+    this.stub = stub;
   }
 
   public final StreetViewPublishServiceSettings getSettings() {
     return settings;
   }
 
+  @BetaApi("A restructuring of stub classes is planned, so this may break in the future")
+  public StreetViewPublishServiceStub getStub() {
+    return stub;
+  }
+
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Creates an upload session to start uploading photo data. The upload URL of the returned
-   * `UploadRef` is used to upload the data for the photo.
+   * Creates an upload session to start uploading photo bytes. The method uses the upload URL of the
+   * returned [UploadRef][google.streetview.publish.v1.UploadRef] to upload the bytes for the
+   * [Photo][google.streetview.publish.v1.Photo].
    *
-   * <p>After the upload is complete, the `UploadRef` is used with
-   * `StreetViewPublishService:CreatePhoto()` to create the `Photo` object entry.
+   * <p>In addition to the photo requirements shown in
+   * https://support.google.com/maps/answer/7012050?hl=en&amp;ref_topic=6275604, the photo must meet
+   * the following requirements:
+   *
+   * <p>&#42; Photo Sphere XMP metadata must be included in the photo medadata. See
+   * https://developers.google.com/streetview/spherical-metadata for the required fields. &#42; The
+   * pixel size of the photo must meet the size requirements listed in
+   * https://support.google.com/maps/answer/7012050?hl=en&amp;ref_topic=6275604, and the photo must
+   * be a full 360 horizontally.
+   *
+   * <p>After the upload completes, the method uses
+   * [UploadRef][google.streetview.publish.v1.UploadRef] with
+   * [CreatePhoto][google.streetview.publish.v1.StreetViewPublishService.CreatePhoto] to create the
+   * [Photo][google.streetview.publish.v1.Photo] object entry.
    *
    * <p>Sample code:
    *
@@ -214,19 +203,32 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  private final UploadRef startUpload(Empty request) {
+  public final UploadRef startUpload(Empty request) {
     return startUploadCallable().call(request);
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Creates an upload session to start uploading photo data. The upload URL of the returned
-   * `UploadRef` is used to upload the data for the photo.
+   * Creates an upload session to start uploading photo bytes. The method uses the upload URL of the
+   * returned [UploadRef][google.streetview.publish.v1.UploadRef] to upload the bytes for the
+   * [Photo][google.streetview.publish.v1.Photo].
    *
-   * <p>After the upload is complete, the `UploadRef` is used with
-   * `StreetViewPublishService:CreatePhoto()` to create the `Photo` object entry.
+   * <p>In addition to the photo requirements shown in
+   * https://support.google.com/maps/answer/7012050?hl=en&amp;ref_topic=6275604, the photo must meet
+   * the following requirements:
+   *
+   * <p>&#42; Photo Sphere XMP metadata must be included in the photo medadata. See
+   * https://developers.google.com/streetview/spherical-metadata for the required fields. &#42; The
+   * pixel size of the photo must meet the size requirements listed in
+   * https://support.google.com/maps/answer/7012050?hl=en&amp;ref_topic=6275604, and the photo must
+   * be a full 360 horizontally.
+   *
+   * <p>After the upload completes, the method uses
+   * [UploadRef][google.streetview.publish.v1.UploadRef] with
+   * [CreatePhoto][google.streetview.publish.v1.StreetViewPublishService.CreatePhoto] to create the
+   * [Photo][google.streetview.publish.v1.Photo] object entry.
    *
    * <p>Sample code:
    *
@@ -240,18 +242,28 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    */
   public final UnaryCallable<Empty, UploadRef> startUploadCallable() {
-    return startUploadCallable;
+    return stub.startUploadCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * After the client finishes uploading the photo with the returned `UploadRef`, `photo.create`
-   * publishes the uploaded photo to Street View on Google Maps.
+   * After the client finishes uploading the photo with the returned
+   * [UploadRef][google.streetview.publish.v1.UploadRef],
+   * [CreatePhoto][google.streetview.publish.v1.StreetViewPublishService.CreatePhoto] publishes the
+   * uploaded [Photo][google.streetview.publish.v1.Photo] to Street View on Google Maps.
+   *
+   * <p>Currently, the only way to set heading, pitch, and roll in CreatePhoto is through the [Photo
+   * Sphere XMP metadata](https://developers.google.com/streetview/spherical-metadata) in the photo
+   * bytes. CreatePhoto ignores the `pose.heading`, `pose.pitch`, `pose.roll`, `pose.altitude`, and
+   * `pose.level` fields in Pose.
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `INVALID_ARGUMENT` if the request is malformed. &#42; `NOT_FOUND` if the upload
-   * reference does not exist.
+   * <p>&#42; [google.rpc.Code.INVALID_ARGUMENT][google.rpc.Code.INVALID_ARGUMENT] if the request is
+   * malformed or if the uploaded photo is not a 360 photo. &#42;
+   * [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the upload reference does not exist.
+   * &#42; [google.rpc.Code.RESOURCE_EXHAUSTED][google.rpc.Code.RESOURCE_EXHAUSTED] if the account
+   * has reached the storage limit.
    *
    * <p>Sample code:
    *
@@ -263,7 +275,7 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param photo Required. Photo to create.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final Photo createPhoto(Photo photo) {
 
@@ -273,13 +285,23 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * After the client finishes uploading the photo with the returned `UploadRef`, `photo.create`
-   * publishes the uploaded photo to Street View on Google Maps.
+   * After the client finishes uploading the photo with the returned
+   * [UploadRef][google.streetview.publish.v1.UploadRef],
+   * [CreatePhoto][google.streetview.publish.v1.StreetViewPublishService.CreatePhoto] publishes the
+   * uploaded [Photo][google.streetview.publish.v1.Photo] to Street View on Google Maps.
+   *
+   * <p>Currently, the only way to set heading, pitch, and roll in CreatePhoto is through the [Photo
+   * Sphere XMP metadata](https://developers.google.com/streetview/spherical-metadata) in the photo
+   * bytes. CreatePhoto ignores the `pose.heading`, `pose.pitch`, `pose.roll`, `pose.altitude`, and
+   * `pose.level` fields in Pose.
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `INVALID_ARGUMENT` if the request is malformed. &#42; `NOT_FOUND` if the upload
-   * reference does not exist.
+   * <p>&#42; [google.rpc.Code.INVALID_ARGUMENT][google.rpc.Code.INVALID_ARGUMENT] if the request is
+   * malformed or if the uploaded photo is not a 360 photo. &#42;
+   * [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the upload reference does not exist.
+   * &#42; [google.rpc.Code.RESOURCE_EXHAUSTED][google.rpc.Code.RESOURCE_EXHAUSTED] if the account
+   * has reached the storage limit.
    *
    * <p>Sample code:
    *
@@ -294,21 +316,31 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  private final Photo createPhoto(CreatePhotoRequest request) {
+  public final Photo createPhoto(CreatePhotoRequest request) {
     return createPhotoCallable().call(request);
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * After the client finishes uploading the photo with the returned `UploadRef`, `photo.create`
-   * publishes the uploaded photo to Street View on Google Maps.
+   * After the client finishes uploading the photo with the returned
+   * [UploadRef][google.streetview.publish.v1.UploadRef],
+   * [CreatePhoto][google.streetview.publish.v1.StreetViewPublishService.CreatePhoto] publishes the
+   * uploaded [Photo][google.streetview.publish.v1.Photo] to Street View on Google Maps.
+   *
+   * <p>Currently, the only way to set heading, pitch, and roll in CreatePhoto is through the [Photo
+   * Sphere XMP metadata](https://developers.google.com/streetview/spherical-metadata) in the photo
+   * bytes. CreatePhoto ignores the `pose.heading`, `pose.pitch`, `pose.roll`, `pose.altitude`, and
+   * `pose.level` fields in Pose.
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `INVALID_ARGUMENT` if the request is malformed. &#42; `NOT_FOUND` if the upload
-   * reference does not exist.
+   * <p>&#42; [google.rpc.Code.INVALID_ARGUMENT][google.rpc.Code.INVALID_ARGUMENT] if the request is
+   * malformed or if the uploaded photo is not a 360 photo. &#42;
+   * [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the upload reference does not exist.
+   * &#42; [google.rpc.Code.RESOURCE_EXHAUSTED][google.rpc.Code.RESOURCE_EXHAUSTED] if the account
+   * has reached the storage limit.
    *
    * <p>Sample code:
    *
@@ -325,17 +357,21 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    */
   public final UnaryCallable<CreatePhotoRequest, Photo> createPhotoCallable() {
-    return createPhotoCallable;
+    return stub.createPhotoCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Gets the metadata of the specified `Photo`.
+   * Gets the metadata of the specified [Photo][google.streetview.publish.v1.Photo].
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `PERMISSION_DENIED` if the requesting user did not create the requested photo. &#42;
-   * `NOT_FOUND` if the requested photo does not exist.
+   * <p>&#42; [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED] if the
+   * requesting user did not create the requested [Photo][google.streetview.publish.v1.Photo]. &#42;
+   * [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the requested
+   * [Photo][google.streetview.publish.v1.Photo] does not exist. &#42;
+   * [google.rpc.Code.UNAVAILABLE][google.rpc.Code.UNAVAILABLE] if the requested
+   * [Photo][google.streetview.publish.v1.Photo] is still being indexed.
    *
    * <p>Sample code:
    *
@@ -347,10 +383,10 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * }
    * </code></pre>
    *
-   * @param photoId Required. ID of the photo.
-   * @param view Specifies if a download URL for the photo bytes should be returned in the Photo
-   *     response.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @param photoId Required. ID of the [Photo][google.streetview.publish.v1.Photo].
+   * @param view Specifies if a download URL for the photo bytes should be returned in the
+   *     [Photo][google.streetview.publish.v1.Photo] response.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final Photo getPhoto(String photoId, PhotoView view) {
 
@@ -361,12 +397,16 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Gets the metadata of the specified `Photo`.
+   * Gets the metadata of the specified [Photo][google.streetview.publish.v1.Photo].
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `PERMISSION_DENIED` if the requesting user did not create the requested photo. &#42;
-   * `NOT_FOUND` if the requested photo does not exist.
+   * <p>&#42; [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED] if the
+   * requesting user did not create the requested [Photo][google.streetview.publish.v1.Photo]. &#42;
+   * [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the requested
+   * [Photo][google.streetview.publish.v1.Photo] does not exist. &#42;
+   * [google.rpc.Code.UNAVAILABLE][google.rpc.Code.UNAVAILABLE] if the requested
+   * [Photo][google.streetview.publish.v1.Photo] is still being indexed.
    *
    * <p>Sample code:
    *
@@ -383,7 +423,7 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final Photo getPhoto(GetPhotoRequest request) {
     return getPhotoCallable().call(request);
@@ -391,12 +431,16 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Gets the metadata of the specified `Photo`.
+   * Gets the metadata of the specified [Photo][google.streetview.publish.v1.Photo].
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `PERMISSION_DENIED` if the requesting user did not create the requested photo. &#42;
-   * `NOT_FOUND` if the requested photo does not exist.
+   * <p>&#42; [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED] if the
+   * requesting user did not create the requested [Photo][google.streetview.publish.v1.Photo]. &#42;
+   * [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the requested
+   * [Photo][google.streetview.publish.v1.Photo] does not exist. &#42;
+   * [google.rpc.Code.UNAVAILABLE][google.rpc.Code.UNAVAILABLE] if the requested
+   * [Photo][google.streetview.publish.v1.Photo] is still being indexed.
    *
    * <p>Sample code:
    *
@@ -415,18 +459,22 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    */
   public final UnaryCallable<GetPhotoRequest, Photo> getPhotoCallable() {
-    return getPhotoCallable;
+    return stub.getPhotoCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Gets the metadata of the specified `Photo` batch.
+   * Gets the metadata of the specified [Photo][google.streetview.publish.v1.Photo] batch.
    *
-   * <p>Note that if `photos.batchGet` fails, either critical fields are missing or there was an
-   * authentication error. Even if `photos.batchGet` succeeds, there may have been failures for
-   * single photos in the batch. These failures will be specified in
-   * `BatchGetPhotosResponse.results.status`. See `photo.get` for specific failures that will occur
-   * per photo.
+   * <p>Note that if
+   * [BatchGetPhotos][google.streetview.publish.v1.StreetViewPublishService.BatchGetPhotos] fails,
+   * either critical fields are missing or there is an authentication error. Even if
+   * [BatchGetPhotos][google.streetview.publish.v1.StreetViewPublishService.BatchGetPhotos]
+   * succeeds, individual photos in the batch may have failures. These failures are specified in
+   * each [PhotoResponse.status][google.streetview.publish.v1.PhotoResponse.status] in
+   * [BatchGetPhotosResponse.results][google.streetview.publish.v1.BatchGetPhotosResponse.results].
+   * See [GetPhoto][google.streetview.publish.v1.StreetViewPublishService.GetPhoto] for specific
+   * failures that can occur per photo.
    *
    * <p>Sample code:
    *
@@ -438,11 +486,12 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * }
    * </code></pre>
    *
-   * @param photoIds Required. IDs of the photos. For HTTP GET requests, the URL query parameter
-   *     should be `photoIds=&lt;id1&gt;&amp;photoIds=&lt;id2&gt;&amp;...`.
+   * @param photoIds Required. IDs of the [Photos][google.streetview.publish.v1.Photo]. HTTP GET
+   *     requests require the following syntax for the URL query parameter:
+   *     `photoIds=&lt;id1&gt;&amp;photoIds=&lt;id2&gt;&amp;...`.
    * @param view Specifies if a download URL for the photo bytes should be returned in the Photo
    *     response.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final BatchGetPhotosResponse batchGetPhotos(List<String> photoIds, PhotoView view) {
 
@@ -453,13 +502,17 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Gets the metadata of the specified `Photo` batch.
+   * Gets the metadata of the specified [Photo][google.streetview.publish.v1.Photo] batch.
    *
-   * <p>Note that if `photos.batchGet` fails, either critical fields are missing or there was an
-   * authentication error. Even if `photos.batchGet` succeeds, there may have been failures for
-   * single photos in the batch. These failures will be specified in
-   * `BatchGetPhotosResponse.results.status`. See `photo.get` for specific failures that will occur
-   * per photo.
+   * <p>Note that if
+   * [BatchGetPhotos][google.streetview.publish.v1.StreetViewPublishService.BatchGetPhotos] fails,
+   * either critical fields are missing or there is an authentication error. Even if
+   * [BatchGetPhotos][google.streetview.publish.v1.StreetViewPublishService.BatchGetPhotos]
+   * succeeds, individual photos in the batch may have failures. These failures are specified in
+   * each [PhotoResponse.status][google.streetview.publish.v1.PhotoResponse.status] in
+   * [BatchGetPhotosResponse.results][google.streetview.publish.v1.BatchGetPhotosResponse.results].
+   * See [GetPhoto][google.streetview.publish.v1.StreetViewPublishService.GetPhoto] for specific
+   * failures that can occur per photo.
    *
    * <p>Sample code:
    *
@@ -476,7 +529,7 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final BatchGetPhotosResponse batchGetPhotos(BatchGetPhotosRequest request) {
     return batchGetPhotosCallable().call(request);
@@ -484,13 +537,17 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Gets the metadata of the specified `Photo` batch.
+   * Gets the metadata of the specified [Photo][google.streetview.publish.v1.Photo] batch.
    *
-   * <p>Note that if `photos.batchGet` fails, either critical fields are missing or there was an
-   * authentication error. Even if `photos.batchGet` succeeds, there may have been failures for
-   * single photos in the batch. These failures will be specified in
-   * `BatchGetPhotosResponse.results.status`. See `photo.get` for specific failures that will occur
-   * per photo.
+   * <p>Note that if
+   * [BatchGetPhotos][google.streetview.publish.v1.StreetViewPublishService.BatchGetPhotos] fails,
+   * either critical fields are missing or there is an authentication error. Even if
+   * [BatchGetPhotos][google.streetview.publish.v1.StreetViewPublishService.BatchGetPhotos]
+   * succeeds, individual photos in the batch may have failures. These failures are specified in
+   * each [PhotoResponse.status][google.streetview.publish.v1.PhotoResponse.status] in
+   * [BatchGetPhotosResponse.results][google.streetview.publish.v1.BatchGetPhotosResponse.results].
+   * See [GetPhoto][google.streetview.publish.v1.StreetViewPublishService.GetPhoto] for specific
+   * failures that can occur per photo.
    *
    * <p>Sample code:
    *
@@ -510,12 +567,15 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    */
   public final UnaryCallable<BatchGetPhotosRequest, BatchGetPhotosResponse>
       batchGetPhotosCallable() {
-    return batchGetPhotosCallable;
+    return stub.batchGetPhotosCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Lists all the photos that belong to the user.
+   * Lists all the [Photos][google.streetview.publish.v1.Photo] that belong to the user.
+   *
+   * <p>&lt;aside class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; Recently created photos that are still
+   * being indexed are not returned in the response.&lt;/aside&gt;
    *
    * <p>Sample code:
    *
@@ -531,8 +591,9 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    *
    * @param view Specifies if a download URL for the photos bytes should be returned in the Photos
    *     response.
-   * @param filter The filter expression. Example: `placeId=ChIJj61dQgK6j4AR4GeTYWZsKWw`
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @param filter The filter expression. For example: `placeId=ChIJj61dQgK6j4AR4GeTYWZsKWw`.
+   *     <p>The only filter supported at the moment is `placeId`.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final ListPhotosPagedResponse listPhotos(PhotoView view, String filter) {
     ListPhotosRequest request =
@@ -542,7 +603,10 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Lists all the photos that belong to the user.
+   * Lists all the [Photos][google.streetview.publish.v1.Photo] that belong to the user.
+   *
+   * <p>&lt;aside class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; Recently created photos that are still
+   * being indexed are not returned in the response.&lt;/aside&gt;
    *
    * <p>Sample code:
    *
@@ -561,7 +625,7 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final ListPhotosPagedResponse listPhotos(ListPhotosRequest request) {
     return listPhotosPagedCallable().call(request);
@@ -569,7 +633,10 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Lists all the photos that belong to the user.
+   * Lists all the [Photos][google.streetview.publish.v1.Photo] that belong to the user.
+   *
+   * <p>&lt;aside class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; Recently created photos that are still
+   * being indexed are not returned in the response.&lt;/aside&gt;
    *
    * <p>Sample code:
    *
@@ -590,12 +657,15 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    */
   public final UnaryCallable<ListPhotosRequest, ListPhotosPagedResponse> listPhotosPagedCallable() {
-    return listPhotosPagedCallable;
+    return stub.listPhotosPagedCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Lists all the photos that belong to the user.
+   * Lists all the [Photos][google.streetview.publish.v1.Photo] that belong to the user.
+   *
+   * <p>&lt;aside class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; Recently created photos that are still
+   * being indexed are not returned in the response.&lt;/aside&gt;
    *
    * <p>Sample code:
    *
@@ -623,19 +693,26 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    */
   public final UnaryCallable<ListPhotosRequest, ListPhotosResponse> listPhotosCallable() {
-    return listPhotosCallable;
+    return stub.listPhotosCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Updates the metadata of a photo, such as pose, place association, etc. Changing the pixels of a
-   * photo is not supported.
+   * Updates the metadata of a [Photo][google.streetview.publish.v1.Photo], such as pose, place
+   * association, connections, etc. Changing the pixels of a photo is not supported.
+   *
+   * <p>Only the fields specified in the
+   * [updateMask][google.streetview.publish.v1.UpdatePhotoRequest.update_mask] field are used. If
+   * `updateMask` is not present, the update applies to all fields.
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `PERMISSION_DENIED` if the requesting user did not create the requested photo. &#42;
-   * `INVALID_ARGUMENT` if the request is malformed. &#42; `NOT_FOUND` if the photo ID does not
-   * exist.
+   * <p>&#42; [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED] if the
+   * requesting user did not create the requested photo. &#42;
+   * [google.rpc.Code.INVALID_ARGUMENT][google.rpc.Code.INVALID_ARGUMENT] if the request is
+   * malformed. &#42; [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the requested photo
+   * does not exist. &#42; [google.rpc.Code.UNAVAILABLE][google.rpc.Code.UNAVAILABLE] if the
+   * requested [Photo][google.streetview.publish.v1.Photo] is still being indexed.
    *
    * <p>Sample code:
    *
@@ -647,22 +724,23 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * }
    * </code></pre>
    *
-   * @param photo Required. Photo object containing the new metadata. Only the fields specified in
-   *     `update_mask` are used. If `update_mask` is not present, the update applies to all fields.
-   *     &#42;&#42;Note:&#42;&#42; To update `pose.altitude`, `pose.latlngpair` has to be filled as
-   *     well. Otherwise, the request will fail.
+   * @param photo Required. [Photo][google.streetview.publish.v1.Photo] object containing the new
+   *     metadata.
    * @param updateMask Mask that identifies fields on the photo metadata to update. If not present,
-   *     the old Photo metadata will be entirely replaced with the new Photo metadata in this
-   *     request. The update fails if invalid fields are specified. Multiple fields can be specified
-   *     in a comma-delimited list.
+   *     the old [Photo][google.streetview.publish.v1.Photo] metadata is entirely replaced with the
+   *     new [Photo][google.streetview.publish.v1.Photo] metadata in this request. The update fails
+   *     if invalid fields are specified. Multiple fields can be specified in a comma-delimited
+   *     list.
    *     <p>The following fields are valid:
-   *     <p>&#42; `pose.heading` &#42; `pose.latlngpair` &#42; `pose.pitch` &#42; `pose.roll` &#42;
+   *     <p>&#42; `pose.heading` &#42; `pose.latLngPair` &#42; `pose.pitch` &#42; `pose.roll` &#42;
    *     `pose.level` &#42; `pose.altitude` &#42; `connections` &#42; `places`
-   *     <p>&#42;&#42;Note:&#42;&#42; Repeated fields in `update_mask` mean the entire set of
-   *     repeated values will be replaced with the new contents. For example, if
-   *     `UpdatePhotoRequest.photo.update_mask` contains `connections` and
-   *     `UpdatePhotoRequest.photo.connections` is empty, all connections will be removed.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   *     <p>&lt;aside class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; When
+   *     [updateMask][google.streetview.publish.v1.UpdatePhotoRequest.update_mask] contains repeated
+   *     fields, the entire set of repeated values get replaced with the new contents. For example,
+   *     if [updateMask][google.streetview.publish.v1.UpdatePhotoRequest.update_mask] contains
+   *     `connections` and `UpdatePhotoRequest.photo.connections` is empty, all connections are
+   *     removed.&lt;/aside&gt;
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final Photo updatePhoto(Photo photo, FieldMask updateMask) {
 
@@ -673,14 +751,21 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Updates the metadata of a photo, such as pose, place association, etc. Changing the pixels of a
-   * photo is not supported.
+   * Updates the metadata of a [Photo][google.streetview.publish.v1.Photo], such as pose, place
+   * association, connections, etc. Changing the pixels of a photo is not supported.
+   *
+   * <p>Only the fields specified in the
+   * [updateMask][google.streetview.publish.v1.UpdatePhotoRequest.update_mask] field are used. If
+   * `updateMask` is not present, the update applies to all fields.
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `PERMISSION_DENIED` if the requesting user did not create the requested photo. &#42;
-   * `INVALID_ARGUMENT` if the request is malformed. &#42; `NOT_FOUND` if the photo ID does not
-   * exist.
+   * <p>&#42; [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED] if the
+   * requesting user did not create the requested photo. &#42;
+   * [google.rpc.Code.INVALID_ARGUMENT][google.rpc.Code.INVALID_ARGUMENT] if the request is
+   * malformed. &#42; [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the requested photo
+   * does not exist. &#42; [google.rpc.Code.UNAVAILABLE][google.rpc.Code.UNAVAILABLE] if the
+   * requested [Photo][google.streetview.publish.v1.Photo] is still being indexed.
    *
    * <p>Sample code:
    *
@@ -697,7 +782,7 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final Photo updatePhoto(UpdatePhotoRequest request) {
     return updatePhotoCallable().call(request);
@@ -705,14 +790,21 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Updates the metadata of a photo, such as pose, place association, etc. Changing the pixels of a
-   * photo is not supported.
+   * Updates the metadata of a [Photo][google.streetview.publish.v1.Photo], such as pose, place
+   * association, connections, etc. Changing the pixels of a photo is not supported.
+   *
+   * <p>Only the fields specified in the
+   * [updateMask][google.streetview.publish.v1.UpdatePhotoRequest.update_mask] field are used. If
+   * `updateMask` is not present, the update applies to all fields.
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `PERMISSION_DENIED` if the requesting user did not create the requested photo. &#42;
-   * `INVALID_ARGUMENT` if the request is malformed. &#42; `NOT_FOUND` if the photo ID does not
-   * exist.
+   * <p>&#42; [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED] if the
+   * requesting user did not create the requested photo. &#42;
+   * [google.rpc.Code.INVALID_ARGUMENT][google.rpc.Code.INVALID_ARGUMENT] if the request is
+   * malformed. &#42; [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the requested photo
+   * does not exist. &#42; [google.rpc.Code.UNAVAILABLE][google.rpc.Code.UNAVAILABLE] if the
+   * requested [Photo][google.streetview.publish.v1.Photo] is still being indexed.
    *
    * <p>Sample code:
    *
@@ -731,19 +823,36 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    */
   public final UnaryCallable<UpdatePhotoRequest, Photo> updatePhotoCallable() {
-    return updatePhotoCallable;
+    return stub.updatePhotoCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Updates the metadata of photos, such as pose, place association, etc. Changing the pixels of a
-   * photo is not supported.
+   * Updates the metadata of [Photos][google.streetview.publish.v1.Photo], such as pose, place
+   * association, connections, etc. Changing the pixels of photos is not supported.
    *
-   * <p>Note that if `photos.batchUpdate` fails, either critical fields are missing or there was an
-   * authentication error. Even if `photos.batchUpdate` succeeds, there may have been failures for
-   * single photos in the batch. These failures will be specified in
-   * `BatchUpdatePhotosResponse.results.status`. See `UpdatePhoto` for specific failures that will
-   * occur per photo.
+   * <p>Note that if
+   * [BatchUpdatePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchUpdatePhotos]
+   * fails, either critical fields are missing or there is an authentication error. Even if
+   * [BatchUpdatePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchUpdatePhotos]
+   * succeeds, individual photos in the batch may have failures. These failures are specified in
+   * each [PhotoResponse.status][google.streetview.publish.v1.PhotoResponse.status] in
+   * [BatchUpdatePhotosResponse.results][google.streetview.publish.v1.BatchUpdatePhotosResponse.results].
+   * See [UpdatePhoto][google.streetview.publish.v1.StreetViewPublishService.UpdatePhoto] for
+   * specific failures that can occur per photo.
+   *
+   * <p>Only the fields specified in
+   * [updateMask][google.streetview.publish.v1.UpdatePhotoRequest.update_mask] field are used. If
+   * `updateMask` is not present, the update applies to all fields.
+   *
+   * <p>The number of [UpdatePhotoRequest][google.streetview.publish.v1.UpdatePhotoRequest] messages
+   * in a [BatchUpdatePhotosRequest][google.streetview.publish.v1.BatchUpdatePhotosRequest] must not
+   * exceed 20.
+   *
+   * <p>&lt;aside class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; To update
+   * [Pose.altitude][google.streetview.publish.v1.Pose.altitude],
+   * [Pose.latLngPair][google.streetview.publish.v1.Pose.lat_lng_pair] has to be filled as well.
+   * Otherwise, the request will fail.&lt;/aside&gt;
    *
    * <p>Sample code:
    *
@@ -754,8 +863,9 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * }
    * </code></pre>
    *
-   * @param updatePhotoRequests Required. List of update photo requests.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @param updatePhotoRequests Required. List of
+   *     [UpdatePhotoRequests][google.streetview.publish.v1.UpdatePhotoRequest].
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final BatchUpdatePhotosResponse batchUpdatePhotos(
       List<UpdatePhotoRequest> updatePhotoRequests) {
@@ -769,14 +879,31 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Updates the metadata of photos, such as pose, place association, etc. Changing the pixels of a
-   * photo is not supported.
+   * Updates the metadata of [Photos][google.streetview.publish.v1.Photo], such as pose, place
+   * association, connections, etc. Changing the pixels of photos is not supported.
    *
-   * <p>Note that if `photos.batchUpdate` fails, either critical fields are missing or there was an
-   * authentication error. Even if `photos.batchUpdate` succeeds, there may have been failures for
-   * single photos in the batch. These failures will be specified in
-   * `BatchUpdatePhotosResponse.results.status`. See `UpdatePhoto` for specific failures that will
-   * occur per photo.
+   * <p>Note that if
+   * [BatchUpdatePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchUpdatePhotos]
+   * fails, either critical fields are missing or there is an authentication error. Even if
+   * [BatchUpdatePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchUpdatePhotos]
+   * succeeds, individual photos in the batch may have failures. These failures are specified in
+   * each [PhotoResponse.status][google.streetview.publish.v1.PhotoResponse.status] in
+   * [BatchUpdatePhotosResponse.results][google.streetview.publish.v1.BatchUpdatePhotosResponse.results].
+   * See [UpdatePhoto][google.streetview.publish.v1.StreetViewPublishService.UpdatePhoto] for
+   * specific failures that can occur per photo.
+   *
+   * <p>Only the fields specified in
+   * [updateMask][google.streetview.publish.v1.UpdatePhotoRequest.update_mask] field are used. If
+   * `updateMask` is not present, the update applies to all fields.
+   *
+   * <p>The number of [UpdatePhotoRequest][google.streetview.publish.v1.UpdatePhotoRequest] messages
+   * in a [BatchUpdatePhotosRequest][google.streetview.publish.v1.BatchUpdatePhotosRequest] must not
+   * exceed 20.
+   *
+   * <p>&lt;aside class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; To update
+   * [Pose.altitude][google.streetview.publish.v1.Pose.altitude],
+   * [Pose.latLngPair][google.streetview.publish.v1.Pose.lat_lng_pair] has to be filled as well.
+   * Otherwise, the request will fail.&lt;/aside&gt;
    *
    * <p>Sample code:
    *
@@ -791,22 +918,39 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  private final BatchUpdatePhotosResponse batchUpdatePhotos(BatchUpdatePhotosRequest request) {
+  public final BatchUpdatePhotosResponse batchUpdatePhotos(BatchUpdatePhotosRequest request) {
     return batchUpdatePhotosCallable().call(request);
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Updates the metadata of photos, such as pose, place association, etc. Changing the pixels of a
-   * photo is not supported.
+   * Updates the metadata of [Photos][google.streetview.publish.v1.Photo], such as pose, place
+   * association, connections, etc. Changing the pixels of photos is not supported.
    *
-   * <p>Note that if `photos.batchUpdate` fails, either critical fields are missing or there was an
-   * authentication error. Even if `photos.batchUpdate` succeeds, there may have been failures for
-   * single photos in the batch. These failures will be specified in
-   * `BatchUpdatePhotosResponse.results.status`. See `UpdatePhoto` for specific failures that will
-   * occur per photo.
+   * <p>Note that if
+   * [BatchUpdatePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchUpdatePhotos]
+   * fails, either critical fields are missing or there is an authentication error. Even if
+   * [BatchUpdatePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchUpdatePhotos]
+   * succeeds, individual photos in the batch may have failures. These failures are specified in
+   * each [PhotoResponse.status][google.streetview.publish.v1.PhotoResponse.status] in
+   * [BatchUpdatePhotosResponse.results][google.streetview.publish.v1.BatchUpdatePhotosResponse.results].
+   * See [UpdatePhoto][google.streetview.publish.v1.StreetViewPublishService.UpdatePhoto] for
+   * specific failures that can occur per photo.
+   *
+   * <p>Only the fields specified in
+   * [updateMask][google.streetview.publish.v1.UpdatePhotoRequest.update_mask] field are used. If
+   * `updateMask` is not present, the update applies to all fields.
+   *
+   * <p>The number of [UpdatePhotoRequest][google.streetview.publish.v1.UpdatePhotoRequest] messages
+   * in a [BatchUpdatePhotosRequest][google.streetview.publish.v1.BatchUpdatePhotosRequest] must not
+   * exceed 20.
+   *
+   * <p>&lt;aside class="note"&gt;&lt;b&gt;Note:&lt;/b&gt; To update
+   * [Pose.altitude][google.streetview.publish.v1.Pose.altitude],
+   * [Pose.latLngPair][google.streetview.publish.v1.Pose.lat_lng_pair] has to be filled as well.
+   * Otherwise, the request will fail.&lt;/aside&gt;
    *
    * <p>Sample code:
    *
@@ -824,17 +968,18 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    */
   public final UnaryCallable<BatchUpdatePhotosRequest, BatchUpdatePhotosResponse>
       batchUpdatePhotosCallable() {
-    return batchUpdatePhotosCallable;
+    return stub.batchUpdatePhotosCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Deletes a photo and its metadata.
+   * Deletes a [Photo][google.streetview.publish.v1.Photo] and its metadata.
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `PERMISSION_DENIED` if the requesting user did not create the requested photo. &#42;
-   * `NOT_FOUND` if the photo ID does not exist.
+   * <p>&#42; [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED] if the
+   * requesting user did not create the requested photo. &#42;
+   * [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the photo ID does not exist.
    *
    * <p>Sample code:
    *
@@ -845,8 +990,8 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * }
    * </code></pre>
    *
-   * @param photoId Required. ID of the photo.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @param photoId Required. ID of the [Photo][google.streetview.publish.v1.Photo].
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final void deletePhoto(String photoId) {
 
@@ -856,12 +1001,13 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Deletes a photo and its metadata.
+   * Deletes a [Photo][google.streetview.publish.v1.Photo] and its metadata.
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `PERMISSION_DENIED` if the requesting user did not create the requested photo. &#42;
-   * `NOT_FOUND` if the photo ID does not exist.
+   * <p>&#42; [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED] if the
+   * requesting user did not create the requested photo. &#42;
+   * [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the photo ID does not exist.
    *
    * <p>Sample code:
    *
@@ -876,20 +1022,21 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  private final void deletePhoto(DeletePhotoRequest request) {
+  public final void deletePhoto(DeletePhotoRequest request) {
     deletePhotoCallable().call(request);
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Deletes a photo and its metadata.
+   * Deletes a [Photo][google.streetview.publish.v1.Photo] and its metadata.
    *
    * <p>This method returns the following error codes:
    *
-   * <p>&#42; `PERMISSION_DENIED` if the requesting user did not create the requested photo. &#42;
-   * `NOT_FOUND` if the photo ID does not exist.
+   * <p>&#42; [google.rpc.Code.PERMISSION_DENIED][google.rpc.Code.PERMISSION_DENIED] if the
+   * requesting user did not create the requested photo. &#42;
+   * [google.rpc.Code.NOT_FOUND][google.rpc.Code.NOT_FOUND] if the photo ID does not exist.
    *
    * <p>Sample code:
    *
@@ -906,18 +1053,22 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    */
   public final UnaryCallable<DeletePhotoRequest, Empty> deletePhotoCallable() {
-    return deletePhotoCallable;
+    return stub.deletePhotoCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Deletes a list of photos and their metadata.
+   * Deletes a list of [Photos][google.streetview.publish.v1.Photo] and their metadata.
    *
-   * <p>Note that if `photos.batchDelete` fails, either critical fields are missing or there was an
-   * authentication error. Even if `photos.batchDelete` succeeds, there may have been failures for
-   * single photos in the batch. These failures will be specified in
-   * `BatchDeletePhotosResponse.status`. See `photo.update` for specific failures that will occur
-   * per photo.
+   * <p>Note that if
+   * [BatchDeletePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchDeletePhotos]
+   * fails, either critical fields are missing or there was an authentication error. Even if
+   * [BatchDeletePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchDeletePhotos]
+   * succeeds, individual photos in the batch may have failures. These failures are specified in
+   * each [PhotoResponse.status][google.streetview.publish.v1.PhotoResponse.status] in
+   * [BatchDeletePhotosResponse.results][google.streetview.publish.v1.BatchDeletePhotosResponse.status].
+   * See [DeletePhoto][google.streetview.publish.v1.StreetViewPublishService.DeletePhoto] for
+   * specific failures that can occur per photo.
    *
    * <p>Sample code:
    *
@@ -928,9 +1079,10 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * }
    * </code></pre>
    *
-   * @param photoIds Required. List of delete photo requests. For HTTP GET requests, the URL query
-   *     parameter should be `photoIds=&lt;id1&gt;&amp;photoIds=&lt;id2&gt;&amp;...`.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @param photoIds Required. IDs of the [Photos][google.streetview.publish.v1.Photo]. HTTP GET
+   *     requests require the following syntax for the URL query parameter:
+   *     `photoIds=&lt;id1&gt;&amp;photoIds=&lt;id2&gt;&amp;...`.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final BatchDeletePhotosResponse batchDeletePhotos(List<String> photoIds) {
 
@@ -941,13 +1093,17 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Deletes a list of photos and their metadata.
+   * Deletes a list of [Photos][google.streetview.publish.v1.Photo] and their metadata.
    *
-   * <p>Note that if `photos.batchDelete` fails, either critical fields are missing or there was an
-   * authentication error. Even if `photos.batchDelete` succeeds, there may have been failures for
-   * single photos in the batch. These failures will be specified in
-   * `BatchDeletePhotosResponse.status`. See `photo.update` for specific failures that will occur
-   * per photo.
+   * <p>Note that if
+   * [BatchDeletePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchDeletePhotos]
+   * fails, either critical fields are missing or there was an authentication error. Even if
+   * [BatchDeletePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchDeletePhotos]
+   * succeeds, individual photos in the batch may have failures. These failures are specified in
+   * each [PhotoResponse.status][google.streetview.publish.v1.PhotoResponse.status] in
+   * [BatchDeletePhotosResponse.results][google.streetview.publish.v1.BatchDeletePhotosResponse.status].
+   * See [DeletePhoto][google.streetview.publish.v1.StreetViewPublishService.DeletePhoto] for
+   * specific failures that can occur per photo.
    *
    * <p>Sample code:
    *
@@ -962,21 +1118,25 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
-   * @throws com.google.api.gax.grpc.ApiException if the remote call fails
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  private final BatchDeletePhotosResponse batchDeletePhotos(BatchDeletePhotosRequest request) {
+  public final BatchDeletePhotosResponse batchDeletePhotos(BatchDeletePhotosRequest request) {
     return batchDeletePhotosCallable().call(request);
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD
   /**
-   * Deletes a list of photos and their metadata.
+   * Deletes a list of [Photos][google.streetview.publish.v1.Photo] and their metadata.
    *
-   * <p>Note that if `photos.batchDelete` fails, either critical fields are missing or there was an
-   * authentication error. Even if `photos.batchDelete` succeeds, there may have been failures for
-   * single photos in the batch. These failures will be specified in
-   * `BatchDeletePhotosResponse.status`. See `photo.update` for specific failures that will occur
-   * per photo.
+   * <p>Note that if
+   * [BatchDeletePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchDeletePhotos]
+   * fails, either critical fields are missing or there was an authentication error. Even if
+   * [BatchDeletePhotos][google.streetview.publish.v1.StreetViewPublishService.BatchDeletePhotos]
+   * succeeds, individual photos in the batch may have failures. These failures are specified in
+   * each [PhotoResponse.status][google.streetview.publish.v1.PhotoResponse.status] in
+   * [BatchDeletePhotosResponse.results][google.streetview.publish.v1.BatchDeletePhotosResponse.status].
+   * See [DeletePhoto][google.streetview.publish.v1.StreetViewPublishService.DeletePhoto] for
+   * specific failures that can occur per photo.
    *
    * <p>Sample code:
    *
@@ -994,17 +1154,115 @@ public class StreetViewPublishServiceClient implements AutoCloseable {
    */
   public final UnaryCallable<BatchDeletePhotosRequest, BatchDeletePhotosResponse>
       batchDeletePhotosCallable() {
-    return batchDeletePhotosCallable;
+    return stub.batchDeletePhotosCallable();
   }
 
-  /**
-   * Initiates an orderly shutdown in which preexisting calls continue but new calls are immediately
-   * cancelled.
-   */
   @Override
-  public final void close() throws Exception {
-    for (AutoCloseable closeable : closeables) {
-      closeable.close();
+  public final void close() {
+    stub.close();
+  }
+
+  @Override
+  public void shutdown() {
+    stub.shutdown();
+  }
+
+  @Override
+  public boolean isShutdown() {
+    return stub.isShutdown();
+  }
+
+  @Override
+  public boolean isTerminated() {
+    return stub.isTerminated();
+  }
+
+  @Override
+  public void shutdownNow() {
+    stub.shutdownNow();
+  }
+
+  @Override
+  public boolean awaitTermination(long duration, TimeUnit unit) throws InterruptedException {
+    return stub.awaitTermination(duration, unit);
+  }
+
+  public static class ListPhotosPagedResponse
+      extends AbstractPagedListResponse<
+          ListPhotosRequest,
+          ListPhotosResponse,
+          Photo,
+          ListPhotosPage,
+          ListPhotosFixedSizeCollection> {
+
+    public static ApiFuture<ListPhotosPagedResponse> createAsync(
+        PageContext<ListPhotosRequest, ListPhotosResponse, Photo> context,
+        ApiFuture<ListPhotosResponse> futureResponse) {
+      ApiFuture<ListPhotosPage> futurePage =
+          ListPhotosPage.createEmptyPage().createPageAsync(context, futureResponse);
+      return ApiFutures.transform(
+          futurePage,
+          new ApiFunction<ListPhotosPage, ListPhotosPagedResponse>() {
+            @Override
+            public ListPhotosPagedResponse apply(ListPhotosPage input) {
+              return new ListPhotosPagedResponse(input);
+            }
+          });
+    }
+
+    private ListPhotosPagedResponse(ListPhotosPage page) {
+      super(page, ListPhotosFixedSizeCollection.createEmptyCollection());
+    }
+  }
+
+  public static class ListPhotosPage
+      extends AbstractPage<ListPhotosRequest, ListPhotosResponse, Photo, ListPhotosPage> {
+
+    private ListPhotosPage(
+        PageContext<ListPhotosRequest, ListPhotosResponse, Photo> context,
+        ListPhotosResponse response) {
+      super(context, response);
+    }
+
+    private static ListPhotosPage createEmptyPage() {
+      return new ListPhotosPage(null, null);
+    }
+
+    @Override
+    protected ListPhotosPage createPage(
+        PageContext<ListPhotosRequest, ListPhotosResponse, Photo> context,
+        ListPhotosResponse response) {
+      return new ListPhotosPage(context, response);
+    }
+
+    @Override
+    public ApiFuture<ListPhotosPage> createPageAsync(
+        PageContext<ListPhotosRequest, ListPhotosResponse, Photo> context,
+        ApiFuture<ListPhotosResponse> futureResponse) {
+      return super.createPageAsync(context, futureResponse);
+    }
+  }
+
+  public static class ListPhotosFixedSizeCollection
+      extends AbstractFixedSizeCollection<
+          ListPhotosRequest,
+          ListPhotosResponse,
+          Photo,
+          ListPhotosPage,
+          ListPhotosFixedSizeCollection> {
+
+    private ListPhotosFixedSizeCollection(List<ListPhotosPage> pages, int collectionSize) {
+      super(pages, collectionSize);
+    }
+
+    private static ListPhotosFixedSizeCollection createEmptyCollection() {
+      return new ListPhotosFixedSizeCollection(null, 0);
+    }
+
+    @Override
+    protected ListPhotosFixedSizeCollection createCollection(
+        List<ListPhotosPage> pages, int collectionSize) {
+      return new ListPhotosFixedSizeCollection(pages, collectionSize);
     }
   }
 }
