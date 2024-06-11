@@ -25,11 +25,11 @@
     "Street View Publish API"
   ],
   "dependencies": {
-    "google-gax": "^0.17.1",
+    "google-gax": "^4.3.6",
     "lodash.merge": "^4.6.0"
   },
   "devDependencies": {
-    "mocha": "^5.2.0",
+    "mocha": "^10.4.0",
     "through2": "^2.0.3"
   },
   "scripts": {
